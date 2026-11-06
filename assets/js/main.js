@@ -91,8 +91,36 @@
   let heroVisible = true, contactsVisible = false;
   const syncHelpbar = () => helpbar && helpbar.classList.toggle('is-on', !heroVisible && !contactsVisible);
   if ('IntersectionObserver' in window && helpbar) {
-    new IntersectionObserver(([en]) => { heroVisible = en.isIntersecting; syncHelpbar(); }).observe(heroActions);
-    new IntersectionObserver(([en]) => { contactsVisible = en.isIntersecting; syncHelpbar(); }, { threshold: 0.05 }).observe(contacts);
+    const firstAnchor = heroActions || $('.page-head, .article-head');
+    if (firstAnchor) new IntersectionObserver(([en]) => { heroVisible = en.isIntersecting; syncHelpbar(); }).observe(firstAnchor);
+    else { heroVisible = false; syncHelpbar(); }
+    if (contacts) new IntersectionObserver(([en]) => { contactsVisible = en.isIntersecting; syncHelpbar(); }, { threshold: 0.05 }).observe(contacts);
+  }
+
+  /* ---------- Blog filters ---------- */
+  const filterBtns = $$('.filters [data-filter]');
+  if (filterBtns.length) {
+    const empty = $('.filters-empty');
+    filterBtns.forEach((b) => b.addEventListener('click', () => {
+      const cat = b.dataset.filter;
+      filterBtns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      let shown = 0;
+      $$('[data-cat]').forEach((p) => { const on = !cat || p.dataset.cat === cat; p.hidden = !on; if (on) shown++; });
+      if (empty) empty.textContent = shown ? '' : 'Nessun articolo in questo tema, per ora.';
+    }));
+  }
+
+  /* ---------- Article table of contents ---------- */
+  const tocLinks = $$('.toc a[href^="#"]');
+  if (tocLinks.length && 'IntersectionObserver' in window) {
+    const map = new Map(tocLinks.map((a) => [a.getAttribute('href').slice(1), a]));
+    const tio = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        tocLinks.forEach((a) => a.classList.toggle('is-here', a === map.get(en.target.id)));
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    map.forEach((_, id) => { const el = document.getElementById(id); if (el) tio.observe(el); });
   }
 
   /* ---------- The gold seam ---------- */
@@ -105,7 +133,8 @@
   const buildSeam = () => {
     if (!seamHost) return;
     rng = seeded(1018);
-    const wrap = $('.hero .wrap');
+    const wrap = $('main .wrap');
+    const hero = $('.hero');
     const cs = getComputedStyle(wrap);
     const rect = wrap.getBoundingClientRect();
     const padL = parseFloat(cs.paddingLeft);
@@ -113,7 +142,7 @@
     const amp = Math.max(5, padL * 0.16);
     const H = main.offsetHeight;
     const W = document.documentElement.clientWidth;
-    const top = $('.hero').offsetHeight * 0.18;
+    const top = hero ? hero.offsetHeight * 0.18 : 24;
 
     let d = `M${x0.toFixed(1)} ${top.toFixed(1)}`;
     let y = top, x = x0;

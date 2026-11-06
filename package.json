@@ -1,9 +1,11 @@
 {
   "name": "livedexperience",
   "private": true,
-  "description": "Sito statico di Lived Experiences. Il build copia solo i file pubblici in dist/.",
+  "type": "module",
+  "description": "Sito statico di Lived Experiences. `pages` genera blog/FAQ/sitemap, `build` copia i file pubblici in dist/.",
   "scripts": {
-    "build": "rm -rf dist && mkdir dist && cp -R index.html privacy.html assets dist/",
-    "start": "python3 -m http.server 4321 --directory dist"
+    "pages": "node scripts/pages.mjs",
+    "build": "node scripts/build.mjs",
+    "start": "python3 -m http.server 4321"
   }
 }

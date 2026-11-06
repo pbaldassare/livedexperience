@@ -12,7 +12,16 @@ python3 -m http.server 4321
 
 Poi apri http://localhost:4321
 
+## Blog e FAQ
+
+- Articoli: `content/articles.mjs` (titolo, testo, parole chiave, FAQ dell'articolo).
+- Domande frequenti: `content/faq.mjs`.
+- Dopo una modifica: `npm run pages` rigenera `blog/`, `faq/`, `sitemap.xml`, `robots.txt` e le sezioni "Dal blog" e "Domande frequenti" della home. Se rinomini o elimini un articolo, cancella a mano la sua vecchia cartella in `blog/`.
+- Dominio: in `scripts/pages.mjs` (`SITE_URL`) e nel `canonical` di `index.html` c'è `https://livedexperience.pages.dev`: aggiornalo quando avrete il dominio definitivo.
+
 ## Pubblicarlo
+
+Cloudflare Pages: build command `npm run build`, output directory `dist`.
 
 Qualsiasi hosting statico va bene: GitHub Pages (Settings → Pages → branch `main`, cartella `/`), Netlify, Cloudflare Pages.
 
